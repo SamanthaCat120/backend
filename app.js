@@ -9,7 +9,6 @@ const router = express.Router()
 
 
 
-
 //making an api using routes
 //routes are used to handle browser requests. They look like urls. The difference is that when a browser requests a route, it is dynamically handled by using a function.
 
