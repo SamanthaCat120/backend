@@ -5,6 +5,7 @@ var cors = require('cors')
 //activate or tell this app variable to be an express server
 
 const bodyParser = require('body-parser')
+
 const Song = require("./models/songs")
 const app = express()
 
@@ -25,11 +26,17 @@ router.get("/songs", async (req, res) => {
     }
 })
 
-//all requests that usually use an api start with /api... so the url would be localhost:3000/api/songs
-app.use("/api", router)
-app.listen(3000)
-
-
+router.post("/songs", async(req,res) => {
+    try{
+        const song = new Song(req.body)
+        await song.save()
+        res.status(201).json(song)
+        console.log(song)
+    }
+    catch (err){
+        res.status(400).send(err)
+    }
+})
 
 //all requests that usually use an api start with /api... so the url would be localhost:3000/api/songs
 app.use("/api", router)
