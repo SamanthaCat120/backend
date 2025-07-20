@@ -3,34 +3,32 @@ const express = require('express')
 //cors is a middleware that allows us to host front end and backend on the same device
 var cors = require('cors')
 //activate or tell this app variable to be an express server
+
+const bodyParser = require('body-parser')
+const Song = require("./models/songs")
 const app = express()
+
 app.use(cors())
+
+app.use(bodyParser.json())
 const router = express.Router()
 
-
-
-//making an api using routes
-//routes are used to handle browser requests. They look like urls. The difference is that when a browser requests a route, it is dynamically handled by using a function.
-
-router.get("/songs", function(req, res){
-    const songs = [
-    {
-        title: "We Found Love",
-        artist: "Rihanna",
-        popularity: 10,
-        releaseDate: new Date("2011, 9, 22"),
-        genre: ["electro house"]
-    },
-    {
-        title: "Happy",
-        artist: "Pharrell Williams",
-        popularity: 10,
-        releaseDate: new Date("2013, 11, 21"),
-        genre: ["soul", "new soul"]
+//grab all the songs in a database
+router.get("/songs", async (req, res) => {
+    try{
+        const songs = await Song.find({})
+        res.send(songs)
+        console.log(songs)
     }
-    ];
-  res.json(songs)
+    catch (err){
+        console.log(err)
+    }
 })
+
+//all requests that usually use an api start with /api... so the url would be localhost:3000/api/songs
+app.use("/api", router)
+app.listen(3000)
+
 
 
 //all requests that usually use an api start with /api... so the url would be localhost:3000/api/songs
