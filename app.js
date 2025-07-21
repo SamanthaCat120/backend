@@ -50,6 +50,21 @@ router.post("/songs", async(req,res) => {
     }
 })
 
+//update is to update an exisiting record/resource/database entry. It uses a put request.
+router.put("/songs/:id", async (req, res) => {
+    //first find the song that needs to be updated
+    //request id of song from request and find it in the database to be updated
+    try{
+        const song = req.body
+        await Song.updateOne({_id: req.params.id}, song)
+        console.log(song)
+        res.sendStatus(204)
+    }
+    catch(err){
+        res.status(400).send(err)
+        }
+    })
+
 //all requests that usually use an api start with /api... so the url would be localhost:3000/api/songs
 app.use("/api", router)
 app.listen(3000)
