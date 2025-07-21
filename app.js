@@ -25,7 +25,19 @@ router.get("/songs", async (req, res) => {
         console.log(err)
     }
 })
+//Grab a single song in the database
+router.get("/songs/:id", async (req, res) => {
+    try{
+        const song = await Song.findById(req.params.id)
+        res.json(song)
+    }
+     catch (err) {
+            res.status(400).send(err)
+    }
+})
 
+
+//added a song to the database
 router.post("/songs", async(req,res) => {
     try{
         const song = new Song(req.body)
