@@ -2,17 +2,41 @@
 const express = require('express')
 //cors is a middleware that allows us to host front end and backend on the same device
 var cors = require('cors')
-//activate or tell this app variable to be an express server
+
 
 const bodyParser = require('body-parser')
-
+const jwt = require('jwt-simple')
+const user = require("./models/users")
 const Song = require("./models/songs")
+//activate or tell this app variable to be an express server
 const app = express()
 
 app.use(cors())
 
 app.use(bodyParser.json())
 const router = express.Router()
+const secret = "supersecret"
+
+//creating a new user
+router.post("/user", async (req, res) => {
+    if(!req.body.username || !req.body.password){
+        return res.status(400).json("Missing username or password");
+    }
+
+    const newUser = new user({
+        username: req.body.username,
+        password: req.body.password,
+        status: req.body.status
+    });
+
+    try {
+        await newUser.save();
+        res.sendStatus(201).json(newUser);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+});
 
 //grab all the songs in a database
 router.get("/songs", async (req, res) => {
