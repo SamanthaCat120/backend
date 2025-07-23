@@ -105,4 +105,6 @@ router.delete("/songs/:id", async (req, res) => {
 
 //all requests that usually use an api start with /api... so the url would be localhost:3000/api/songs
 app.use("/api", router)
-app.listen(3000)
+
+var port = process.env.PORT || 3000
+app.listen(port)
