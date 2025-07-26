@@ -6,7 +6,7 @@ var cors = require('cors')
 
 const bodyParser = require('body-parser')
 const jwt = require('jwt-simple')
-const user = require("./models/users")
+const User = require("./models/users")
 const Song = require("./models/songs")
 //activate or tell this app variable to be an express server
 const app = express()
@@ -23,7 +23,7 @@ router.post("/user", async (req, res) => {
         return res.status(400).json("Missing username or password");
     }
 
-    const newUser = new user({
+    const newUser = new User({
         username: req.body.username,
         password: req.body.password,
         status: req.body.status
@@ -31,12 +31,66 @@ router.post("/user", async (req, res) => {
 
     try {
         await newUser.save();
-        res.sendStatus(201).json(newUser);
+        res.status(201).json(newUser);
     }
     catch (err) {
         res.status(400).send(err);
     }
 });
+//authenticate or login
+//post request - when you login, you're creating a new session
+router.post("/auth", async (req, res) => {
+    if(!req.body.username || !req.body.password){
+        res.status(400).json({error: "Missing username or password"})
+        return;
+    }
+    //try to find username in database, see if it matches with a username and password
+    //await finding a user
+    try {
+    let foundUser = await User.findOne({ username: req.body.username });
+    
+    if (!foundUser) {
+        return res.status(401).json({ error: "Bad Username" });
+    }
+
+    if (foundUser.password !== req.body.password) {
+        return res.status(401).json({ error: "Bad Password" });
+    }
+
+    const token = jwt.encode({ username: foundUser.username }, secret);
+    res.json({
+        username2: foundUser.username,
+        token,
+        auth: 1
+    });
+
+} catch (err) {
+    res.status(400).send(err);
+}
+});
+
+//check status of user with a valid token, see if it matches the frontend token
+router.get("/status", async (req, res) => {
+    //check if the token is valid
+    if(!req.headers["x-auth"]){
+        return res.status(401).json({error: "Missing X-Auth"})
+    }
+    //if x-auth contains the token (it should)
+    const token = req.headers["x-auth"]
+    try {
+        const decoded = jwt.decode(token, secret)
+        
+        //send back all username and status fields to the user or frontend
+
+        let users = User.find({}, "username status")
+        res.json(users)
+    }
+    catch(ex){
+        res.status(401).json({error: "Invalid jwt token"})
+    } 
+})
+
+
 
 //grab all the songs in a database
 router.get("/songs", async (req, res) => {
